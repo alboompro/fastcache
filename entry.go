@@ -14,7 +14,7 @@ type entry struct {
 	Value        interface{}
 }
 
-func (e *entry) revalid(c *cache, r *ristretto.Cache, i *ItemRequest) {
+func (e *entry) revalid(c *Cache, r *ristretto.Cache, i *ItemRequest) {
 	if time.Now().After(e.RevalidateAt) {
 		go func() {
 			if newEntry, err := i.loadEntry(c); err == nil {
@@ -38,7 +38,7 @@ func (e *entry) expired() bool {
 	return time.Now().After(e.ExpiresAt)
 }
 
-func (i *ItemRequest) loadEntry(c *cache) (*entry, error) {
+func (i *ItemRequest) loadEntry(c *Cache) (*entry, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if result, err := i.Do(i); err == nil {

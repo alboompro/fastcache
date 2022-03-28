@@ -17,7 +17,8 @@ var (
 	ErrKeyNotSupported = errors.New("key is not supported")
 )
 
-type cache struct {
+// Cache returns the underlying cache.
+type Cache struct {
 	ristretto_instances []*ristretto.Cache
 	mus                 []*sync.Mutex
 	mu                  *sync.Mutex
@@ -62,14 +63,14 @@ type ItemRequest struct {
 	TTLRevalidate int
 }
 
-func (i *ItemRequest) revalidateAt(c *cache) time.Duration {
+func (i *ItemRequest) revalidateAt(c *Cache) time.Duration {
 	if i.TTLRevalidate > 0 {
 		return time.Duration(i.TTLRevalidate) * time.Second
 	}
 	return time.Duration(c.config.TTLRevalidateSec) * time.Second
 }
 
-func (i *ItemRequest) expiresAt(c *cache) time.Duration {
+func (i *ItemRequest) expiresAt(c *Cache) time.Duration {
 	if i.TTL > 0 {
 		return time.Duration(i.TTL) * time.Second
 	}
@@ -77,8 +78,8 @@ func (i *ItemRequest) expiresAt(c *cache) time.Duration {
 }
 
 // NewCache creates a new cache
-func New(config *CacheNewConfig) *cache {
-	c := &cache{
+func New(config *CacheNewConfig) *Cache {
+	c := &Cache{
 		config:  config,
 		mu:      &sync.Mutex{},
 		counter: 0,
@@ -132,7 +133,7 @@ func New(config *CacheNewConfig) *cache {
 // original to complete and receives the same results. If the revalidation
 // TTL is expired returns the same value and execute the ItemRequest.Do to
 // store the new value in the cache.
-func (c *cache) Get(req *ItemRequest) error {
+func (c *Cache) Get(req *ItemRequest) error {
 	if req.Key == "" {
 		return ErrKeyEmpty
 	}

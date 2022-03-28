@@ -22,7 +22,7 @@ func newRedisConn(config *CacheNewConfig) *rcache.Cache {
 	return mycache
 }
 
-func (c *cache) redisLoad(req *ItemRequest) (*entry, error) {
+func (c *Cache) redisLoad(req *ItemRequest) (*entry, error) {
 	var e = new(entry)
 	if err := c.redis_conn.Once(&rcache.Item{
 		Key:   req.Key,
