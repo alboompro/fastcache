@@ -83,6 +83,10 @@ var config = fastcache.CacheNewConfig{
 			"localhost": ":6379",
 		}, // default value
     },
+
+	// RedisMode store the mode of redis connection
+	// options: fastcache.MODE_SINGLE OR fastcache.MODE_CLUSTER
+	RedisMode: fastcache.MODE_SINGLE, // default value
 }
 
 var req = fastcache.ItemRequest{
