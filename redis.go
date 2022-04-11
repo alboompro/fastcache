@@ -12,13 +12,34 @@ type Object struct {
 	Num int
 }
 
-func newRedisConn(config *CacheNewConfig) *rcache.Cache {
-	ring := redis.NewRing(config.RedisConfig)
+type RedisMODE string
 
-	mycache := rcache.New(&rcache.Options{
-		Redis:      ring,
-		LocalCache: rcache.NewTinyLFU(int(config.TTLCacheSec), time.Second),
-	})
+var (
+	MODE_CLUSTER = RedisMODE("cluster")
+	MODE_SINGLE  = RedisMODE("single")
+)
+
+func newRedisConn(config *CacheNewConfig) *rcache.Cache {
+	var mycache *rcache.Cache
+	if config.RedisMode == MODE_CLUSTER {
+		var addrs []string
+		for host, port := range config.RedisConfig.Addrs {
+			addrs = append(addrs, host+port)
+		}
+		rdb := redis.NewClusterClient(&redis.ClusterOptions{
+			Addrs: addrs,
+		})
+		mycache = rcache.New(&rcache.Options{
+			Redis:      rdb,
+			LocalCache: rcache.NewTinyLFU(int(config.TTLCacheSec), time.Second),
+		})
+	} else {
+		mycache = rcache.New(&rcache.Options{
+			Redis:      redis.NewRing(config.RedisConfig),
+			LocalCache: rcache.NewTinyLFU(int(config.TTLCacheSec), time.Second),
+		})
+	}
+
 	return mycache
 }
 

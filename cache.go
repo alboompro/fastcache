@@ -43,6 +43,9 @@ type CacheNewConfig struct {
 
 	// Redis connection config
 	RedisConfig *redis.RingOptions
+
+	// Redis connection config
+	RedisMode RedisMODE
 }
 
 // ItemRequest is a struct that holds the request for the cache
@@ -87,6 +90,10 @@ func New(config *CacheNewConfig) *Cache {
 
 	if c.config.RedisConfig == nil {
 		c.config.RedisConfig = &redis.RingOptions{}
+	}
+
+	if c.config.RedisMode == "" {
+		c.config.RedisMode = MODE_SINGLE
 	}
 
 	if (c.config.RedisConfig.Addrs == nil) || (len(c.config.RedisConfig.Addrs) == 0) {
